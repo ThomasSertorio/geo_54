@@ -4,7 +4,17 @@ class FlatsController < ApplicationController
   # GET /flats
   # GET /flats.json
   def index
-    @flats = Flat.all
+    if !params[:location].blank?
+      @flats = Flat.near(params[:location], 10) if !params[:location].blank?
+    else
+      @flats = Flat.where.not(latitude: nil, longitude: nil)
+    end
+
+    @hash = Gmaps4rails.build_markers(@flats) do |flat, marker|
+      marker.lat flat.latitude
+      marker.lng flat.longitude
+      # marker.infowindow render_to_string(partial: "/flats/map_box", locals: { flat: flat })
+    end
   end
 
   # GET /flats/1
